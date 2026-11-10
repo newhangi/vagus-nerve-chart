@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>為什麼緊張會肚子痛？身體的神奇切換開關</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; }
+  body { background: #0f172a; color: #f8fafc; padding: 20px; display: flex; justify-content: center; }
+  .container { max-width: 960px; width: 100%; }
+  h1 { font-size: 24px; color: #38bdf8; text-align: center; margin-bottom: 6px; }
+  p.subtitle { text-align: center; font-size: 14px; color: #94a3b8; margin-bottom: 20px; }
+  .grid { display: grid; grid-template-columns: 1fr 1.3fr; gap: 18px; }
+  @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+  
+  .stage-list { display: flex; flex-direction: column; gap: 8px; }
+  .stage-card { padding: 12px 16px; border-radius: 10px; cursor: pointer; transition: all 0.2s; border: 1px solid #334155; background: #1e293b; }
+  .stage-card:hover { transform: translateX(4px); }
+  .stage-card.red { border-left: 5px solid #ef4444; }
+  .stage-card.green { border-left: 5px solid #10b981; }
+  .stage-card.active { background: #334155; border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.25); }
+  .card-tag { font-size: 11px; font-weight: bold; }
+  .card-tag.red { color: #f87171; }
+  .card-tag.green { color: #34d399; }
+  .card-title { font-size: 14px; font-weight: bold; margin-top: 3px; color: #f1f5f9; }
+
+  .display-panel { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+  .visual-box { background: #0b1329; border-radius: 8px; padding: 16px; display: flex; align-items: center; justify-content: space-around; margin-bottom: 16px; border: 1px dashed #334155; }
+  .organ-icon { text-align: center; width: 75px; }
+  .organ-svg { width: 44px; height: 44px; margin: 0 auto 6px; transition: all 0.3s; }
+  .organ-name { font-size: 12px; color: #94a3b8; }
+  .nerve-line { flex: 1; height: 3px; background: #334155; position: relative; margin: 0 8px; border-radius: 2px; }
+  .nerve-pulse { position: absolute; top: -3px; width: 9px; height: 9px; border-radius: 50%; background: #38bdf8; transition: all 0.5s; }
+
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: bold; margin-bottom: 8px; }
+  .badge.red { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .badge.green { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .detail-title { font-size: 18px; margin-bottom: 8px; color: #f8fafc; }
+  .detail-desc { font-size: 14px; line-height: 1.6; color: #cbd5e1; margin-bottom: 14px; }
+  .dialog-box { background: rgba(15, 23, 42, 0.7); padding: 10px 14px; border-radius: 8px; border-left: 3px solid #38bdf8; font-size: 13px; color: #93c5fd; margin-bottom: 14px; }
+  
+  .meters { background: #0f172a; padding: 12px; border-radius: 8px; }
+  .meter-row { margin-bottom: 8px; }
+  .meter-row:last-child { margin-bottom: 0; }
+  .meter-txt { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 3px; color: #94a3b8; }
+  .bar-bg { height: 7px; background: #334155; border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; transition: width 0.4s ease; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>緊張時肚子痛？揭開身體裡的「煞車與油門」秘密！</h1>
+  <p class="subtitle">點擊左側 7 個步驟，觀察大腦、心臟與肚子在深呼吸前後的變化</p>
+  <div class="grid">
+    <div class="stage-list" id="stageList"></div>
+    <div class="display-panel" id="displayPanel"></div>
+  </div>
+</div>
+
+<script>
+const data = [
+  {
+    tag: "緊張戰鬥篇", type: "red",
+    title: "第 1 步：突發緊張！大腦警報響起",
+    badge: "大腦司令部（情緒中心）",
+    desc: "考試發下卷子或要上台時，大腦裡的情緒雷達瞬間拉響紅色警報：『注意！有挑戰來了！』",
+    dialog: "大腦廣播員：『全體細胞注意，有緊急狀況，準備備戰！』",
+    organState: { brain: "#ef4444", heart: "#94a3b8", stomach: "#10b981", pulsePos: "15%" },
+    stress: 80, blood: 70, calm: 15
+  },
+  {
+    tag: "緊張戰鬥篇", type: "red",
+    title: "第 2 步：踩下油門！交感神經隊長出動",
+    badge: "戰鬥油門隊長（交感神經）",
+    desc: "交感神經就像汽車油門，下令心跳加速、呼吸變快，準備好隨時迎戰或逃跑。",
+    dialog: "交感隊長大喊：『心臟快點跳！把力氣送到雙手雙腳！』",
+    organState: { brain: "#ef4444", heart: "#ef4444", stomach: "#f59e0b", pulsePos: "30%" },
+    stress: 95, blood: 40, calm: 10
+  },
+  {
+    tag: "緊張戰鬥篇", type: "red",
+    title: "第 3 步：血液被搶走！肚子瞬間缺水缺電",
+    badge: "血液調度站",
+    desc: "因為心臟和雙腿需要大量血液逃命，身體只好把原本在肚子幫忙消化的血液全部『抽走支援前線』！",
+    dialog: "肚子細胞驚呼：『糟糕！我們的大水管被關掉了，沒有血液送進來了！』",
+    organState: { brain: "#f59e0b", heart: "#ef4444", stomach: "#64748b", pulsePos: "50%" },
+    stress: 90, blood: 15, calm: 5
+  },
+  {
+    tag: "緊張戰鬥篇", type: "red",
+    title: "第 4 步：肚子大抽筋！翻攪絞痛發作",
+    badge: "胃部小廚房（平滑肌）",
+    desc: "肚子裡的血管收縮、嚴重缺血，胃部肌肉冷到開始扭絞抽筋，這就是我們常感覺到的『緊張胃痛』！",
+    dialog: "胃部廚師大哭：『肚子冷冰冰、肌肉緊縮成一團，好痛呀！』",
+    organState: { brain: "#94a3b8", heart: "#ef4444", stomach: "#ef4444", pulsePos: "70%" },
+    stress: 85, blood: 10, calm: 5
+  },
+  {
+    tag: "呼吸放鬆篇", type: "green",
+    title: "第 5 步：超強秘技！有意識的「深吸慢吐」",
+    badge: "身體的秘密開關（橫膈膜）",
+    desc: "這時你閉上眼，做一個『吸氣4秒、吐氣8秒』的慢動作。肺部慢慢展開，像按下了身體的煞車鍵！",
+    dialog: "橫膈膜報告：『偵測到緩慢平穩的長吐氣，這不是逃跑的急促呼吸，外面安全了！』",
+    organState: { brain: "#38bdf8", heart: "#f59e0b", stomach: "#f59e0b", pulsePos: "50%" },
+    stress: 60, blood: 35, calm: 50
+  },
+  {
+    tag: "呼吸放鬆篇", type: "green",
+    title: "第 6 步：秘密通訊！迷走神經直通大腦",
+    badge: "綠色通訊線（迷走神經）",
+    desc: "迷走神經就像肚子通往大腦的專線電話，把『現在很安全』的訊息光速送回大腦總機，強迫交感隊長熄火！",
+    dialog: "迷走信使打電話：『大腦總機請注意，警報解除，請立刻停止戰鬥警戒！』",
+    organState: { brain: "#10b981", heart: "#10b981", stomach: "#38bdf8", pulsePos: "20%" },
+    stress: 40, blood: 65, calm: 80
+  },
+  {
+    tag: "呼吸放鬆篇", type: "green",
+    title: "第 7 步：溫暖回血！肚子肌肉解開打結",
+    badge: "放鬆修復精靈（副交感神經）",
+    desc: "大腦發出放鬆訊號，肚子的血管重新打開，暖烘烘的血液流回胃部，原本抽筋打結的肌肉漸漸鬆開，肚子不痛了！",
+    dialog: "肚子細胞歡呼：『溫暖的血液流回來了！肌肉放鬆了，肚子又舒服了！』",
+    organState: { brain: "#10b981", heart: "#10b981", stomach: "#10b981", pulsePos: "85%" },
+    stress: 20, blood: 90, calm: 95
+  }
+];
+
+let curIdx = 4;
+
+function render() {
+  // Render list
+  const listEl = document.getElementById('stageList');
+  listEl.innerHTML = data.map((d, i) => `
+    <div class="stage-card ${d.type} ${i === curIdx ? 'active' : ''}" onclick="selectStage(${i})">
+      <div class="card-tag ${d.type}">${d.tag}</div>
+      <div class="card-title">${d.title}</div>
+    </div>
+  `).join('');
+
+  // Render display panel
+  const item = data[curIdx];
+  const st = item.organState;
+  
+  document.getElementById('displayPanel').innerHTML = `
+    <div>
+      <div class="visual-box">
+        <div class="organ-icon">
+          <svg class="organ-svg" viewBox="0 0 24 24" fill="${st.brain}">
+            <path d="M12 3C8.5 3 6 5.5 6 9c0 1.2.4 2.3 1 3.2-.6.8-1 1.8-1 2.8 0 2.2 1.8 4 4 4h1v2h4v-2h1c2.2 0 4-1.8 4-4 0-1-.4-2-1-2.8.6-.9 1-2 1-3.2 0-3.5-2.5-6-6-6z"/>
+          </svg>
+          <div class="organ-name">大腦總機</div>
+        </div>
+        <div class="nerve-line">
+          <div class="nerve-pulse" style="left:${st.pulsePos};"></div>
+        </div>
+        <div class="organ-icon">
+          <svg class="organ-svg" viewBox="0 0 24 24" fill="${st.heart}">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+          <div class="organ-name">心臟引擎</div>
+        </div>
+        <div class="nerve-line"></div>
+        <div class="organ-icon">
+          <svg class="organ-svg" viewBox="0 0 24 24" fill="${st.stomach}">
+            <path d="M8 3c-2.8 0-5 2.2-5 5 0 4 3 8 7 10 1.5.8 3 1 4 1 3.3 0 6-2.7 6-6 0-3-2-6-5-8-1-.7-2-1-3-1H8z"/>
+          </svg>
+          <div class="organ-name">肚子胃部</div>
+        </div>
+      </div>
+
+      <span class="badge ${item.type}">${item.badge}</span>
+      <h2 class="detail-title">${item.title}</h2>
+      <p class="detail-desc">${item.desc}</p>
+      <div class="dialog-box">${item.dialog}</div>
+    </div>
+
+    <div class="meters">
+      <div class="meter-row">
+        <div class="meter-txt"><span>💥 緊張戰鬥指數</span><span>${item.stress}%</span></div>
+        <div class="bar-bg"><div class="bar-fill" style="width:${item.stress}%; background:#ef4444;"></div></div>
+      </div>
+      <div class="meter-row">
+        <div class="meter-txt"><span>🩸 肚子胃部供血量</span><span>${item.blood}%</span></div>
+        <div class="bar-bg"><div class="bar-fill" style="width:${item.blood}%; background:#f59e0b;"></div></div>
+      </div>
+      <div class="meter-row">
+        <div class="meter-txt"><span>🍃 身體放鬆平靜度</span><span>${item.calm}%</span></div>
+        <div class="bar-bg"><div class="bar-fill" style="width:${item.calm}%; background:#10b981;"></div></div>
+      </div>
+    </div>
+  `;
+}
+
+function selectStage(idx) {
+  curIdx = idx;
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
